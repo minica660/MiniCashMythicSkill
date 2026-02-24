@@ -29,6 +29,9 @@ public final class MiniCashMythicSkill extends JavaPlugin implements Listener {
         if (event.getMechanicName().equalsIgnoreCase("mtestmessage")) {
             event.register(new TestMessage(event.getConfig()));
         }
+        if (event.getMechanicName().equalsIgnoreCase("randomLightning")) {
+            event.register(new RandomLightningMechanic(event.getConfig()));
+        }
     }
 
 
