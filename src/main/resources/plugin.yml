@@ -1,0 +1,7 @@
+name: MiniCashMythicSkill
+version: '$version'
+main: MiniCash.miniCashMythicSkill.MiniCashMythicSkill
+api-version: '1.21'
+depend:
+  - MythicMobs
+author: MiniCash

@@ -1,5 +1,6 @@
 package MiniCash.miniCashMythicSkill.mechanic;
 
+import MiniCash.miniCashMythicSkill.Event;
 import io.lumine.mythic.api.adapters.AbstractEntity;
 import io.lumine.mythic.api.config.MythicLineConfig;
 import io.lumine.mythic.api.skills.ITargetedEntitySkill;
@@ -15,14 +16,21 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
 public class Stun implements ITargetedEntitySkill {
+
+    private final JavaPlugin plugin;
 
     private final int time;
     private final double knockback;
     private final double knockbackY;
 
 
-    public Stun(MythicLineConfig config) {
+    public Stun(JavaPlugin plugin, MythicLineConfig config) {
+        this.plugin = plugin;
 
         this.time = config.getInteger(new String[]{"time", "t"}, 5);    //スタンさせる時間
         this.knockback = config.getInteger(new String[]{"knockback"}, 10);  //ノックバックさせる距離
@@ -35,43 +43,57 @@ public class Stun implements ITargetedEntitySkill {
     public SkillResult castAtEntity(SkillMetadata skillMetadata, AbstractEntity target) {
 
 
-        if (target.getBukkitEntity() instanceof Player) {
+        if (target.getBukkitEntity() instanceof Player player) {
 
-            final JavaPlugin plugin = JavaPlugin.getProvidingPlugin(getClass());
-
-            Player player = (Player) target.getBukkitEntity();
+            // 観戦者モードの憑依が解除しないリストに追加
+            Event.addStunedPlayer(player.getUniqueId());
 
             Bukkit.getScheduler().runTask(plugin, () -> {
 
+                final float spiderYaw = player.getLocation().getYaw();
+                final float spiderPitch = player.getLocation().getPitch();
+
+                Spider spider = player.getWorld().spawn(player.getLocation(), Spider.class, entity -> {
+                    entity.setInvisible(true);
+                    entity.setInvulnerable(true);
+                    entity.setSilent(true);
+                    entity.setAI(true);
+                    entity.setCollidable(false);
+                    entity.setGravity(true);
+                });
+
                 //吹っ飛ばし処理
-                Vector direction = player.getLocation().getDirection();
+                Vector direction = spider.getLocation().getDirection().multiply(-1);
 
-                direction.multiply(-1);
+                spider.setVelocity(new Vector(direction.getX() * knockback, knockbackY, direction.getZ() * knockback));
 
-                player.setVelocity(new Vector(direction.getX() * knockback, knockbackY, direction.getZ() * knockback));
+
+                player.setGameMode(GameMode.SPECTATOR);
+                player.setSpectatorTarget(spider);
+
 
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
 
-
-                    Spider spider = player.getWorld().spawn(player.getLocation(), Spider.class, entity -> {
-                        entity.setInvisible(true);
-                        entity.setInvulnerable(true);
-                        entity.setSilent(true);
-                        entity.setAI(false);
-                    });
-
-                    player.setGameMode(GameMode.SPECTATOR);
-                    player.setSpectatorTarget(spider);
-
-
+/*
+                    これはEventの方でスペクテイターモードが解除されないようにしたためいらない
                     BukkitTask watchTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-                        if (!player.isOnline() || player.getGameMode() != GameMode.SPECTATOR) return;
+
+                        if (!player.isOnline() || player.getGameMode() != GameMode.SPECTATOR){
+                            return;
+                        }
 
                         // もし視点がクモから外れていたら、強制的に戻す
                         if (player.getSpectatorTarget() == null || !player.getSpectatorTarget().equals(spider)) {
                             player.setSpectatorTarget(spider);
                         }
-                    }, 1L, 1L);
+
+                        spider.setRotation(spiderYaw, spiderPitch);
+                        spider.getPathfinder().stopPathfinding();
+
+                    }, 0L, 1L);
+
+
+ */
 
 
                     // 解除
@@ -81,13 +103,14 @@ public class Stun implements ITargetedEntitySkill {
                             player.setSpectatorTarget(null); // 視点解除
                             player.setGameMode(GameMode.SURVIVAL); // サバイバルに戻す
                         }
+
+                        Event.removeStunedPlayer(player.getUniqueId());
                         spider.remove();
-                        watchTask.cancel();
 
                     }, time);
 
 
-                },20L);
+                }, 20L);
 
             });
 
@@ -98,9 +121,6 @@ public class Stun implements ITargetedEntitySkill {
 
         return SkillResult.CONDITION_FAILED;
     }
-
-
-
 
 
 }

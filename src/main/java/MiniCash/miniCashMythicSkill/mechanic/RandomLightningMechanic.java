@@ -15,6 +15,7 @@ import io.lumine.mythic.core.skills.SkillMechanic;
 import org.bukkit.*;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.util.Random;
@@ -54,7 +55,7 @@ public class RandomLightningMechanic implements ITargetedLocationSkill {
 
             //座標確定
             double x = casterLoc.getX() + ((Math.random() * 2 - 1) * radius);
-            double y = casterLoc.getY() + ((Math.random() * 2 - 1) * radius);
+            double y = casterLoc.getY();
             double z = casterLoc.getZ() + ((Math.random() * 2 - 1) * radius);
 
             Location location = new Location(world, x, y, z);
@@ -63,14 +64,14 @@ public class RandomLightningMechanic implements ITargetedLocationSkill {
                 Color whiteColor = Color.WHITE;
 
                 world.spawnParticle(Particle.FLASH, location, 1, 0.0, 0.0, 0.0, 0.0, whiteColor);
-               new org.bukkit.scheduler.BukkitRunnable() {
+               new BukkitRunnable() {
                     @Override
                     public void run() {
                         //雷召喚(偽の雷)
                         world.strikeLightningEffect(location);
 
                         // 周囲へのダメージ
-                        world.getNearbyEntities(location, 0.5, 2, 0.5).forEach(entity -> {
+                        world.getNearbyEntities(location, 1, 2, 1).forEach(entity -> {
                             if (entity instanceof LivingEntity) {
                                 LivingEntity livingEntity = (LivingEntity) entity;
                                 //ダメージ

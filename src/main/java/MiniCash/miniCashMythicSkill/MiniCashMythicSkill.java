@@ -1,6 +1,7 @@
 package MiniCash.miniCashMythicSkill;
 
 import MiniCash.miniCashMythicSkill.mechanic.RandomLightningMechanic;
+import MiniCash.miniCashMythicSkill.mechanic.Stun;
 import MiniCash.miniCashMythicSkill.mechanic.TestMessage;
 import io.lumine.mythic.bukkit.events.MythicMechanicLoadEvent;
 import org.bukkit.event.EventHandler;
@@ -16,6 +17,7 @@ public final class MiniCashMythicSkill extends JavaPlugin implements Listener {
 
         getLogger().info("MiniCashMythicSkill 起動完了!");
 
+        getServer().getPluginManager().registerEvents(new Event(),this);
     }
 
     @Override
@@ -33,7 +35,7 @@ public final class MiniCashMythicSkill extends JavaPlugin implements Listener {
             event.register(new RandomLightningMechanic(event.getConfig()));
         }
         if (event.getMechanicName().equalsIgnoreCase("mstun")) {
-            event.register(new Stun(event.getConfig()));
+            event.register(new Stun(this,event.getConfig()));
         }
     }
 
