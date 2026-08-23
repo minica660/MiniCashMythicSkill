@@ -1,5 +1,6 @@
 package MiniCash.miniCashMythicSkill;
 
+import MiniCash.miniCashMythicSkill.mechanic.LinkPlayerMechanic;
 import MiniCash.miniCashMythicSkill.mechanic.RandomLightning;
 import MiniCash.miniCashMythicSkill.mechanic.Stun;
 import MiniCash.miniCashMythicSkill.mechanic.TestMessage;
@@ -36,6 +37,9 @@ public final class MiniCashMythicSkill extends JavaPlugin implements Listener {
         }
         if (event.getMechanicName().equalsIgnoreCase("mstun")) {
             event.register(new Stun(this,event.getConfig()));
+        }
+        if (event.getMechanicName().equalsIgnoreCase("linkplayers")) {
+            event.register(new LinkPlayerMechanic(this, event.getConfig()));
         }
     }
 
