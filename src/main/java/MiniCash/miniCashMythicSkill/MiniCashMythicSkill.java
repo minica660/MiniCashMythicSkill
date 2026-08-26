@@ -1,9 +1,6 @@
 package MiniCash.miniCashMythicSkill;
 
-import MiniCash.miniCashMythicSkill.mechanic.LinkPlayerMechanic;
-import MiniCash.miniCashMythicSkill.mechanic.RandomLightning;
-import MiniCash.miniCashMythicSkill.mechanic.Stun;
-import MiniCash.miniCashMythicSkill.mechanic.TestMessage;
+import MiniCash.miniCashMythicSkill.mechanic.*;
 import io.lumine.mythic.bukkit.events.MythicMechanicLoadEvent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -40,6 +37,9 @@ public final class MiniCashMythicSkill extends JavaPlugin implements Listener {
         }
         if (event.getMechanicName().equalsIgnoreCase("linkplayers")) {
             event.register(new LinkPlayerMechanic(this, event.getConfig()));
+        }
+        if (event.getMechanicName().equalsIgnoreCase("breakshild")) {
+            event.register(new BreakShild(this,event.getConfig()));
         }
     }
 
